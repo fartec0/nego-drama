@@ -1,4 +1,13 @@
 #!/usr/bin/env python
+"""
+Copyright (c) 2025 nego-drama project contributors
+All rights reserved.
+
+This source code is licensed under the terms of the LICENSE file found in the
+root directory of this source tree.
+"""
+
+
 # -*- coding: utf-8 -*-
 
 """
