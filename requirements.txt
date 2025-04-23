@@ -1,4 +1,4 @@
-gradio>=3.50.2
+gradio==2.52.5
 numpy>=1.22.0
 scipy>=1.9.0
 matplotlib>=3.5.0
@@ -8,3 +8,7 @@ pytest>=7.3.1
 black>=23.3.0
 isort>=5.12.0
 pylint>=2.17.0
+transformers>=4.36.0
+huggingface_hub>=0.20.0
+torch>=2.0.0
+pillow>=10.0.0

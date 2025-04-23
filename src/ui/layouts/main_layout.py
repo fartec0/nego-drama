@@ -2,117 +2,103 @@
 # -*- coding: utf-8 -*-
 
 """
-Main layout for the Quantum UI application.
-This module defines the overall layout of the application UI.
+Main layout for the Quantum UI with Hugging Face integration.
+This module integrates quantum simulation components with Hugging Face AI models.
 """
 
+import os
+import logging
+from typing import Dict, Any, List, Optional, Union
+
 import gradio as gr
-from typing import Dict, Any
 
-from src.ui.components.circuit_builder import CircuitBuilderComponent
+from src.ui.components.circuit_builder import QuantumCircuitComponent
 from src.ui.components.state_visualizer import StateVisualizerComponent
-from src.config.settings.app_settings import AppSettings
+from src.ui.components.huggingface import TextGenerationComponent, ImageClassificationComponent
+from src.core.services.huggingface import HuggingFaceService
 
-def create_main_layout(settings: AppSettings) -> gr.Blocks:
-    """Create the main layout for the Quantum UI application.
+class MainLayout:
+    """Main layout for the integrated Quantum UI with Hugging Face."""
     
-    Args:
-        settings: Application settings
+    def __init__(
+        self,
+        title: str = "Quantum UI with Hugging Face Integration",
+        description: str = "A professional-grade quantum computing UI with Hugging Face AI models",
+        theme: str = "default",
+        model_service: Optional[HuggingFaceService] = None
+    ):
+        """Initialize the main layout.
         
-    Returns:
-        Gradio Blocks interface
-    """
-    with gr.Blocks(title=settings.app_name, theme=settings.theme) as app:
-        gr.Markdown(f"# {settings.app_name}")
-        gr.Markdown("A professional-grade quantum computing interface built with Gradio")
+        Args:
+            title: Title for the UI
+            description: Description for the UI
+            theme: Theme for the UI
+            model_service: Hugging Face model service instance
+        """
+        self.title = title
+        self.description = description
+        self.theme = theme
+        self.logger = logging.getLogger(__name__)
+        self.model_service = model_service or HuggingFaceService()
         
-        with gr.Tabs():
-            with gr.TabItem("Circuit Designer"):
-                circuit_builder = CircuitBuilderComponent(max_qubits=settings.max_qubits)
-                circuit_builder.build_interface()
-                
-            with gr.TabItem("State Visualization"):
-                state_visualizer = StateVisualizerComponent()
-                state_visualizer.build_interface()
-                
-            with gr.TabItem("Quantum Algorithms"):
-                with gr.Row():
-                    with gr.Column():
-                        algorithm_selector = gr.Dropdown(
-                            choices=["Grover's Algorithm", "Quantum Fourier Transform", "Shor's Algorithm", "VQE"],
-                            value="Grover's Algorithm",
-                            label="Select Algorithm"
-                        )
-                        
-                        run_algorithm_btn = gr.Button("Run Algorithm")
-                        
-                    with gr.Column():
-                        algorithm_description = gr.Markdown(
-                            "**Grover's Algorithm** is a quantum algorithm for unstructured search that finds with high probability the unique input to a black box function that produces a particular output value, using just O(√N) evaluations of the function, where N is the size of the function's domain."
-                        )
-                        
-                        algorithm_params = gr.JSON(
-                            {"elements": 4, "marked_element": 2},
-                            label="Algorithm Parameters"
-                        )
-                
-                algorithm_results = gr.Plot(label="Algorithm Results")
-            
-            with gr.TabItem("Settings"):
-                with gr.Row():
-                    with gr.Column():
-                        backend_selector = gr.Dropdown(
-                            choices=list(settings.available_backends.keys()),
-                            value=list(settings.available_backends.keys())[0],
-                            label="Quantum Backend"
-                        )
-                        
-                        shots = gr.Slider(
-                            minimum=1,
-                            maximum=10000,
-                            value=settings.default_shots,
-                            step=1,
-                            label="Number of Shots"
-                        )
-                        
-                    with gr.Column():
-                        backend_info = gr.JSON(
-                            settings.available_backends[list(settings.available_backends.keys())[0]],
-                            label="Backend Information"
-                        )
+    def create(self) -> gr.Blocks:
+        """Create and return the main Gradio interface.
         
-        # Update backend info when selected
-        def update_backend_info(backend_name):
-            return settings.available_backends.get(backend_name, {"name": "Unknown", "description": "No information available"})
-            
-        backend_selector.change(
-            update_backend_info,
-            inputs=[backend_selector],
-            outputs=[backend_info]
+        Returns:
+            Gradio Blocks interface
+        """
+        self.logger.info("Creating main Gradio interface")
+        
+        # Initialize components
+        circuit_builder = QuantumCircuitComponent()
+        state_visualizer = StateVisualizerComponent() 
+        text_generator = TextGenerationComponent(
+            model_name="gpt2",
+            title="Text Generation",
+            model_service=self.model_service
+        )
+        image_classifier = ImageClassificationComponent(
+            model_name="microsoft/resnet-50",
+            title="Image Classification",
+            model_service=self.model_service
         )
         
-        # Update algorithm description when selected
-        def update_algorithm_description(algorithm_name):
-            descriptions = {
-                "Grover's Algorithm": "**Grover's Algorithm** is a quantum algorithm for unstructured search that finds with high probability the unique input to a black box function that produces a particular output value, using just O(√N) evaluations of the function, where N is the size of the function's domain.",
-                "Quantum Fourier Transform": "**Quantum Fourier Transform (QFT)** is a linear transformation on quantum bits, and is the quantum analogue of the discrete Fourier transform. It is a key component of many quantum algorithms.",
-                "Shor's Algorithm": "**Shor's Algorithm** is a quantum algorithm for integer factorization, formulated in 1994. It solves the factoring problem more efficiently than the best-known classical algorithm.",
-                "VQE": "**Variational Quantum Eigensolver (VQE)** is a hybrid quantum-classical algorithm used for finding eigenvalues of a matrix, usually a Hamiltonian of a quantum system."
-            }
+        # Create the main interface with tabs
+        with gr.Blocks(title=self.title, theme=self.theme) as interface:
+            gr.Markdown(f"# {self.title}")
+            gr.Markdown(self.description)
             
-            params = {
-                "Grover's Algorithm": {"elements": 4, "marked_element": 2},
-                "Quantum Fourier Transform": {"register_size": 3},
-                "Shor's Algorithm": {"number_to_factor": 15},
-                "VQE": {"hamiltonian": "Hydrogen molecule", "max_iterations": 100}
-            }
+            with gr.Tabs():
+                with gr.Tab("Quantum Simulation"):
+                    with gr.Row():
+                        with gr.Column(scale=1):
+                            # Quantum Circuit Builder
+                            circuit_component = circuit_builder.create_component()
+                        
+                        with gr.Column(scale=1):
+                            # Quantum State Visualizer
+                            state_component = state_visualizer.create_component()
+                
+                with gr.Tab("Text Generation"):
+                    # Get text generation component as blocks
+                    _, text_gen_block = text_generator.as_tab()
+                    text_gen_block.render()
+                
+                with gr.Tab("Image Classification"):
+                    # Get image classification component as blocks
+                    _, img_class_block = image_classifier.as_tab()
+                    img_class_block.render()
             
-            return descriptions.get(algorithm_name, "No description available"), params.get(algorithm_name, {})
+            gr.Markdown("""
+            ## About this Application
             
-        algorithm_selector.change(
-            update_algorithm_description,
-            inputs=[algorithm_selector],
-            outputs=[algorithm_description, algorithm_params]
-        )
+            This application integrates quantum computing simulation with AI capabilities:
+            
+            - **Quantum Simulation**: Design quantum circuits and visualize quantum states
+            - **Text Generation**: Generate text using Hugging Face language models
+            - **Image Classification**: Classify images using computer vision models
+            
+            Built with Gradio 2.52.5 and Hugging Face Transformers.
+            """)
         
-    return app
+        return interface
