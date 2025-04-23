@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quantum-ui
+  labels:
+    app: quantum-ui
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: quantum-ui
+  template:
+    metadata:
+      labels:
+        app: quantum-ui
+    spec:
+      containers:
+      - name: quantum-ui
+        image: quantum-ui:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 7860
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "500m"
+          limits:
+            memory: "1Gi"
+            cpu: "1000m"
+        env:
+        - name: IBMQ_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: quantum-credentials
+              key: ibmq-token
+        - name: LOG_LEVEL
+          value: "INFO"
+        volumeMounts:
+        - name: quantum-data
+          mountPath: /app/data
+      volumes:
+      - name: quantum-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quantum-ui-service
+spec:
+  selector:
+    app: quantum-ui
+  ports:
+  - port: 80
+    targetPort: 7860
+  type: LoadBalancer
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: quantum-credentials
+type: Opaque
+# The values below are placeholders and should be replaced with base64-encoded actual credentials
+data:
+  ibmq-token: aWJtcV90b2tlbl9wbGFjZWhvbGRlcg== # placeholder, replace with actual value
