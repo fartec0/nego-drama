@@ -11,8 +11,9 @@ root directory of this source tree.
 # -*- coding: utf-8 -*-
 
 """
-Main layout for the Quantum UI with Hugging Face integration.
-This module integrates quantum simulation components with Hugging Face AI models.
+Main layout for the Quantum UI with Hugging Face and AIF360 integration.
+This module integrates quantum simulation components with Hugging Face AI models
+and AI Fairness 360 for quantum algorithm fairness analysis.
 """
 
 import os
@@ -24,15 +25,16 @@ import gradio as gr
 from src.ui.components.circuit_builder import QuantumCircuitComponent
 from src.ui.components.state_visualizer import StateVisualizerComponent
 from src.ui.components.huggingface import TextGenerationComponent, ImageClassificationComponent
+from src.ui.components.aif360 import QuantumFairnessComponent
 from src.core.services.huggingface import HuggingFaceService
 
 class MainLayout:
-    """Main layout for the integrated Quantum UI with Hugging Face."""
+    """Main layout for the integrated Quantum UI with Hugging Face and AIF360."""
     
     def __init__(
         self,
-        title: str = "Quantum UI with Hugging Face Integration",
-        description: str = "A professional-grade quantum computing UI with Hugging Face AI models",
+        title: str = "Quantum UI with AI Integrations",
+        description: str = "A professional-grade quantum computing UI with Hugging Face AI models and AIF360 fairness analysis",
         theme: str = "default",
         model_service: Optional[HuggingFaceService] = None
     ):
@@ -71,6 +73,7 @@ class MainLayout:
             title="Image Classification",
             model_service=self.model_service
         )
+        quantum_fairness = QuantumFairnessComponent()
         
         # Create the main interface with tabs
         with gr.Blocks(title=self.title, theme=self.theme) as interface:
@@ -97,6 +100,11 @@ class MainLayout:
                     # Get image classification component as blocks
                     _, img_class_block = image_classifier.as_tab()
                     img_class_block.render()
+                
+                with gr.Tab("Quantum Fairness"):
+                    # Add the AIF360 Quantum Fairness component
+                    fairness_interface = quantum_fairness.build_interface()
+                    fairness_interface.render()
             
             gr.Markdown("""
             ## About this Application
@@ -106,8 +114,9 @@ class MainLayout:
             - **Quantum Simulation**: Design quantum circuits and visualize quantum states
             - **Text Generation**: Generate text using Hugging Face language models
             - **Image Classification**: Classify images using computer vision models
+            - **Quantum Fairness**: Analyze and mitigate bias in quantum algorithms using AIF360
             
-            Built with Gradio 2.52.5 and Hugging Face Transformers.
+            Built with Gradio 2.52.5, Hugging Face Transformers, and IBM's AI Fairness 360 toolkit.
             """)
         
         return interface

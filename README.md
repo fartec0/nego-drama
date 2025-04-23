@@ -25,7 +25,7 @@
             `o@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@o'
 ```
 
-A professional-grade quantum computing UI framework built with Gradio, providing interactive visualization and manipulation of quantum algorithms and simulations.
+A professional-grade quantum computing UI framework built with Gradio, providing interactive visualization and manipulation of quantum algorithms and simulations with integrated AI capabilities.
 
 ## Features
 
@@ -38,6 +38,8 @@ A professional-grade quantum computing UI framework built with Gradio, providing
 - Solid genesis states for reliable quantum initialization
 - Entanglement preservation throughout transformations
 - Kubernetes deployment support for cloud environments
+- Hugging Face AI model integration for text generation and image classification
+- AI Fairness 360 integration for quantum algorithm fairness analysis
 
 ## Architecture Highlights
 
@@ -47,8 +49,29 @@ This project implements a micro-module architecture that prioritizes:
 - **Entanglement Preservation**: Careful tracking and preservation of quantum entanglement
 - **Backend Agnostic Design**: Support for multiple quantum computing providers
 - **Quantum-Classical Hybrid Workflows**: Seamless integration between classical and quantum processing
+- **Three-Layer AI Integration**: Core services, integration layer, and UI components for each AI capability
+- **Fairness and Bias Mitigation**: Tools to ensure quantum algorithms make fair decisions
 
 See [ARCHITECTURE.md](/docs/ARCHITECTURE.md) for comprehensive details.
+
+## AI Integrations
+
+### Hugging Face
+
+The application integrates with Hugging Face's transformers library to provide:
+
+- Text generation using GPT-2 with configurable parameters
+- Image classification with state-of-the-art computer vision models
+- User-friendly interface for AI experimentation alongside quantum computing
+
+### AI Fairness 360 (AIF360)
+
+This integration helps ensure algorithmic fairness in quantum computing applications:
+
+- Bias detection metrics for quantum algorithm outputs
+- Fairness mitigation tools for quantum-enhanced predictions
+- Audit capabilities for Grover's algorithm and dataset representation bias
+- Fairness analysis for quantum neural network predictions
 
 ## Getting Started
 

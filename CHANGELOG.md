@@ -18,6 +18,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Tabbed interface combining quantum computing and AI features
 - Production-ready error handling and caching throughout the stack
 - Command-line configuration options for deployment flexibility
+- AI Fairness 360 (AIF360) integration:
+  - Bias detection metrics for quantum algorithm outputs
+  - Fairness mitigation tools for quantum-enhanced predictions
+  - Audit capabilities for Grover's algorithm and dataset representation bias
+  - Fairness analysis for quantum neural network predictions
 
 ### Changed
 - Updated main layout to include AI tabs alongside quantum simulation
